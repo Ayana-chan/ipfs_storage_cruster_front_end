@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useCounterStore } from '@/stores/counter';
 import ExampleApi from '@/api/example';
+import FileApi from '@/api/file';
 
 const counterStore = useCounterStore();
 const { count } = storeToRefs(counterStore);
@@ -27,6 +28,18 @@ const test_axios = () => {
       console.log('example err', err);
     });
 };
+
+const download_file = () => {
+  let cid = 'QmcT1st8Jb42q23VZhq9rDKvQp3SNnWCyZBU5xdGeCDQP9';
+  let filename = 'mfbbb';
+  FileApi.download({ cid, filename }).then((res) => {
+    console.log('Download success.', res);
+    ElMessage('Download success.');
+  }).catch((err)=> {
+    console.log("Download failed!", err);
+    ElMessage('Download failed!');
+  });
+};
 </script>
 
 <template>
@@ -41,6 +54,9 @@ const test_axios = () => {
     >Test axios</el-button
   >
   <div class="image-example"><WrappedImage></WrappedImage></div>
+  <el-button type="primary" size="large" @click="download_file"
+    >Download File</el-button
+  >
 </template>
 
 <style scoped>
