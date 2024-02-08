@@ -40,10 +40,10 @@ const download_file = () => {
   ElMessage('Download started.');
   // First, axios download file to memory;
   // Then, save file to local disk by fake link.
-  FileApi.download({ cid, filename })
+  FileApi.download(cid, { filename })
     .then((res) => {
       console.log('Finish download to memory.', res.data.length);
-      fakeDownload(filename, [res.data])
+      fakeDownload(filename, [res.data]);
       console.log('Download success.', res.data.length, res);
       ElMessage.info('Download success.');
     })

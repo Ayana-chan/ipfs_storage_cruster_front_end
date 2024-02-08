@@ -1,9 +1,9 @@
 import httpRequest from '.';
 
 export default class FileApi {
-  static download(param: { cid: string; filename: string }) {
+  static download(cid: string, param: { filename: string }) {
     return httpRequest.request<any>({
-      url: '/api',
+      url: '/api/' + cid,
       method: 'GET',
       params: param,
     });
