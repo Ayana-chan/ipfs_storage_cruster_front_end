@@ -2,6 +2,7 @@
 import { useCounterStore } from '@/stores/counter';
 import ExampleApi from '@/api/example';
 import FileApi from '@/api/file';
+import { fakeDownload } from '@/utils';
 
 const counterStore = useCounterStore();
 const { count } = storeToRefs(counterStore);
@@ -42,12 +43,7 @@ const download_file = () => {
   FileApi.download({ cid, filename })
     .then((res) => {
       console.log('Finish download to memory.', res.data.length);
-      const url = window.URL.createObjectURL(new Blob([res.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', filename);
-      document.body.appendChild(link);
-      link.click();
+      fakeDownload(filename, [res.data])
       console.log('Download success.', res.data.length, res);
       ElMessage.info('Download success.');
     })
