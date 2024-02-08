@@ -30,15 +30,31 @@ const test_axios = () => {
 };
 
 const download_file = () => {
+  // let cid = 'QmWeoysRLxatACwJQNmZLbBefTrFfdJoYcCQb3FoAZ2kt4';
+  // let filename = 'mfbbb.jpg';
   let cid = 'QmcT1st8Jb42q23VZhq9rDKvQp3SNnWCyZBU5xdGeCDQP9';
-  let filename = 'mfbbb';
-  FileApi.download({ cid, filename }).then((res) => {
-    console.log('Download success.', res);
-    ElMessage('Download success.');
-  }).catch((err)=> {
-    console.log("Download failed!", err);
-    ElMessage('Download failed!');
-  });
+  let filename = 'cap.mp4';
+
+  console.log('Download started.');
+  ElMessage('Download started.');
+  // First, axios download file to memory;
+  // Then, save file to local disk by fake link.
+  FileApi.download({ cid, filename })
+    .then((res) => {
+      console.log('Finish download to memory.', res.data.length);
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      console.log('Download success.', res.data.length, res);
+      ElMessage.info('Download success.');
+    })
+    .catch((err) => {
+      console.warn('Download failed, or caught by IDM', err);
+      ElMessage.warning('Download failed, or caught by IDM');
+    });
 };
 </script>
 
