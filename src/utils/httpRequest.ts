@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import type {
   AxiosInstance,
   AxiosRequestConfig,
@@ -10,8 +10,7 @@ import type {
  * Type returned by axios
  */
 export interface IAxiosResponse<T = any> {
-  code: number;
-  message: string;
+  status: number;
   data: T;
 }
 
@@ -71,9 +70,9 @@ export class HttpRequest {
         // console.log('Global Response Interceptor');
         return res;
       },
-      (err: any) => {
+      (err: AxiosError) => {
         // console.log('Global Response Interceptor catch Error');
-        return Promise.reject(err);
+        return Promise.reject(err.response);
       }
     );
   }
