@@ -72,7 +72,7 @@ export class HttpRequest {
       },
       (err: AxiosError) => {
         // console.log('Global Response Interceptor catch Error');
-        return Promise.reject(err.response);
+        return Promise.reject(err);
       }
     );
   }

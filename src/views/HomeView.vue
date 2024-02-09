@@ -4,6 +4,7 @@ import ExampleApi from '@/api/example';
 import FileApi from '@/api/file';
 import { fakeDownload } from '@/utils';
 import type { IAxiosResponse } from '@/utils/httpRequest';
+import type { AxiosError } from 'axios';
 
 const counterStore = useCounterStore();
 const { count } = storeToRefs(counterStore);
@@ -31,7 +32,6 @@ const test_axios = () => {
     });
 };
 
-//TODO: 前端下载有问题
 const download_file = () => {
   // let cid = 'QmTYLjg9feXGKm5zpkZ9eqraEN9LnUmgipWSoeXguFdwWb';
   // let filename = 'pa4.txt';
@@ -44,22 +44,23 @@ const download_file = () => {
   // let cid = 'QmcT1st8Jb42q23VZhq9rDKvQp3SNnWCyZBU5xdGeCDQP9';
   // let filename = 'cap.mp4';
 
-  console.log('Download started.');
-  ElMessage.info('Download started.');
   // First, axios download file to memory;
   // Then, save file to local disk by fake link.
+  console.log('Download request');
   FileApi.download(cid, { filename })
     .then((res) => {
-      console.log('Test res: ', res);
-      console.log('Finish download to memory.', res.data.length);
+      console.log('Finish download to memory.', res);
       fakeDownload(filename, [res.data]);
-      console.log('Download success.', res.data.length, res);
+      console.log('Download success.');
       ElMessage.success('Download success.');
     })
-    .catch((err: IAxiosResponse) => {
-      //TODO: err Type
-      console.warn('Download failed, or caught by IDM', err.status, err.data);
-      ElMessage.warning('Download failed, or caught by IDM');
+    .catch((err: AxiosError) => {
+      console.warn('Download failed, or caught by browser plugin', err);
+      ElMessageBox.alert(
+        'Download failed, or caught by browser plugin',
+        'Warning'
+      );
+      // ElMessage.warning('Download failed, or caught by browser plugin');
     });
 };
 </script>
