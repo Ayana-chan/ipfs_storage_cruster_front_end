@@ -81,7 +81,7 @@ export class HttpRequest {
    * Create an axios request with optional interceptors
    * @param config axios config with optional interceptors
    */
-  request<D>(config: AxiosRequestConfig): Promise<IAxiosResponse<D>> {
+  request<T>(config: AxiosRequestConfig) {
     // warn when GET request with `data`
     const { method = 'GET' } = config;
     if (method === 'get' || method === 'GET') {
@@ -90,8 +90,6 @@ export class HttpRequest {
       }
     }
 
-    return this.instance.request<any, IAxiosResponse<D>>(config);
+    return this.instance.request<any, IAxiosResponse<T>>(config);
   }
 }
-
-

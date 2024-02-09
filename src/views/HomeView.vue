@@ -31,11 +31,16 @@ const test_axios = () => {
     });
 };
 
+//TODO: 前端下载有问题
 const download_file = () => {
+  // let cid = 'QmTYLjg9feXGKm5zpkZ9eqraEN9LnUmgipWSoeXguFdwWb';
+  // let filename = 'pa4.txt';
   // let cid = 'QmcvNpUouVvFFX8GL3xbZMqLZFZnz9yiZVDprnL4EiGXzg';
   // let filename = 'lm1.jpeg';
-  let cid = 'QmZigK4HbeA8gLm3vNyA5pEqJeHhyWLX2BGzeS7tttodTXa';
-  let filename = 'koishi.jpg';
+  // let cid = 'QmZigK4HbeA8gLm3vNyA5pEqJeHhyWLX2BGzeS7tttodTX';
+  // let filename = 'koishi.jpg';
+  let cid = 'QmWeoysRLxatACwJQNmZLbBefTrFfdJoYcCQb3FoAZ2kt4';
+  let filename = 'mfb.png';
   // let cid = 'QmcT1st8Jb42q23VZhq9rDKvQp3SNnWCyZBU5xdGeCDQP9';
   // let filename = 'cap.mp4';
 

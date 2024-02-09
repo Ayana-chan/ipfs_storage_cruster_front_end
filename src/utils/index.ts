@@ -38,6 +38,7 @@ export function fakeDownload(
 ) {
   const url = window.URL.createObjectURL(new Blob(blobParts, options));
   const link = document.createElement('a');
+  link.style.display = 'none';
   link.href = url;
   let real_filename: string;
   if (filename) {
@@ -46,6 +47,10 @@ export function fakeDownload(
     real_filename = 'untitled';
   }
   link.setAttribute('download', real_filename);
+  // download
   document.body.appendChild(link);
   link.click();
+  // remove
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
 }

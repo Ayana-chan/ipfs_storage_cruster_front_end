@@ -6,6 +6,7 @@ export default class FileApi {
       url: '/api/' + cid,
       method: 'GET',
       params: param,
+      responseType: 'blob',
     });
   }
 }
