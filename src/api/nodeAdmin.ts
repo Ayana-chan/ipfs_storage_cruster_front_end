@@ -17,7 +17,7 @@ const nodeAdminHttpRequest = new HttpRequest({
 
 export default class NodeAdminApi {
   static check_pin(cid: string) {
-    type PinStatus = 'pinning' | 'pinned' | 'failed';
+    type PinStatus = 'pinning' | 'pinned' | 'failed' | 'not_found';
     return nodeAdminHttpRequest.request<
       StandardResponse<{ status: PinStatus }>
     >({
