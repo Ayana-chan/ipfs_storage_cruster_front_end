@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { useCounterStore } from '@/stores/counter';
-import ExampleApi from '@/api/example';
-import FileApi from '@/api/file';
 import { fakeDownload } from '@/utils';
-import type { IAxiosResponse } from '@/utils/httpRequest';
 import type { AxiosError } from 'axios';
+import NodePublicApi from '@/api/nodePublic';
+import NodeAdminApi from '@/api/nodeAdmin';
 
 const counterStore = useCounterStore();
 const { count } = storeToRefs(counterStore);
@@ -18,41 +17,29 @@ const test_env = () => {
   console.debug('import.meta.env.BASE_URL', import.meta.env.BASE_URL);
 };
 
-const test_axios = () => {
-  console.log('start test_axios');
-  const param = {
-    content: 'abceeee',
-  };
-  ExampleApi.exampleRequest(param)
-    .then((res) => {
-      console.log('example res', res);
-    })
-    .catch((err: IAxiosResponse) => {
-      console.log('example err', err);
-    });
-};
-
 const download_file = () => {
   // let cid = 'QmTYLjg9feXGKm5zpkZ9eqraEN9LnUmgipWSoeXguFdwWb';
   // let filename = 'pa4.txt';
+  // let cid = 'QmamM9uqiR2kqqeRF9UFJ1YXsDRxkebTBqci5Hg55Nr7jP';
+  // let filename = 'abc.txt';
   // let cid = 'QmcvNpUouVvFFX8GL3xbZMqLZFZnz9yiZVDprnL4EiGXzg';
   // let filename = 'lm1.jpeg';
-  // let cid = 'QmZigK4HbeA8gLm3vNyA5pEqJeHhyWLX2BGzeS7tttodTX';
-  // let filename = 'koishi.jpg';
-  let cid = 'QmWeoysRLxatACwJQNmZLbBefTrFfdJoYcCQb3FoAZ2kt4';
-  let filename = 'mfb.png';
+  let cid = 'QmZigK4HbeA8gLm3vNyA5pEqJeHhyWLX2BGzeS7tttodTX';
+  let filename = 'koishi.jpg';
+  // let cid = 'QmWeoysRLxatACwJQNmZLbBefTrFfdJoYcCQb3FoAZ2kt4';
+  // let filename = 'mfb.png';
   // let cid = 'QmcT1st8Jb42q23VZhq9rDKvQp3SNnWCyZBU5xdGeCDQP9';
   // let filename = 'cap.mp4';
 
   // First, axios download file to memory;
   // Then, save file to local disk by fake link.
   console.log('Download request');
-  FileApi.download(cid, { filename })
+  NodePublicApi.download(cid, { filename })
     .then((res) => {
       console.log('Finish download to memory.', res);
       fakeDownload(filename, [res.data]);
-      console.log('Download success.');
-      ElMessage.success('Download success.');
+      console.log('Download success');
+      ElMessage.success('Download success');
     })
     .catch((err: AxiosError) => {
       console.warn('Download failed, or caught by browser plugin', err);
@@ -61,6 +48,21 @@ const download_file = () => {
         'Warning'
       );
       // ElMessage.warning('Download failed, or caught by browser plugin');
+    });
+};
+
+const add_pin = () => {
+  // let cid = 'QmWeoysRLxatACwJQNmZLbBefTrFfdJoYcCQb3FoAZ2kt4';
+  let cid = 'QmamM9uqiR2kqqeRF9UFJ1YXsDRxkebTBqci5Hg55Nr7jP';
+
+  NodeAdminApi.pin_add({ cid })
+    .then((res) => {
+      console.log('Add pin success', res);
+      ElMessage.success('Add pin success');
+    })
+    .catch((err) => {
+      console.error('Add Pin fail', err);
+      ElMessage.error('Add Pin fail');
     });
 };
 </script>
@@ -72,14 +74,11 @@ const download_file = () => {
   >
   <br />
   <el-button type="info" size="default" @click="test_env">Test env</el-button>
-  <br />
-  <el-button type="warning" size="default" @click="test_axios"
-    >Test axios</el-button
-  >
   <div class="image-example"><WrappedImage></WrappedImage></div>
   <el-button type="primary" size="large" @click="download_file"
     >Download File</el-button
   >
+  <el-button type="primary" size="large" @click="add_pin">Add Pin</el-button>
 </template>
 
 <style scoped>
