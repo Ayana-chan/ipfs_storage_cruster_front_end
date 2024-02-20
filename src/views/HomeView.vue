@@ -51,14 +51,29 @@ const download_file = () => {
     });
 };
 
+const check_pin = () => {
+  // let cid = 'QmWeoysRLxatACwJQNmZLbBefTrFfdJoYcCQb3FoAZ2kt4';
+  let cid = 'QmamM9uqiR2kqqeRF9UFJ1YXsDRxkebTBqci5Hg55Nr7jP';
+
+  NodeAdminApi.check_pin(cid)
+    .then((res) => {
+      console.log('Check pin result', res.data.data.status);
+      ElMessage.success('Check pin result: ' + res.data.data.status);
+    })
+    .catch((err) => {
+      console.error('Check Pin fail', err);
+      ElMessage.error('Check Pin fail');
+    });
+};
+
 const add_pin = () => {
   // let cid = 'QmWeoysRLxatACwJQNmZLbBefTrFfdJoYcCQb3FoAZ2kt4';
   let cid = 'QmamM9uqiR2kqqeRF9UFJ1YXsDRxkebTBqci5Hg55Nr7jP';
 
   NodeAdminApi.add_pin({ cid })
     .then((res) => {
-      console.log('Add pin success', res);
-      ElMessage.success('Add pin success');
+      console.log('Add pin sent', res);
+      ElMessage.success('Add pin sent');
     })
     .catch((err) => {
       console.error('Add Pin fail', err);
@@ -79,6 +94,9 @@ const add_pin = () => {
     >Download File</el-button
   >
   <el-button type="primary" size="large" @click="add_pin">Add Pin</el-button>
+  <el-button type="primary" size="large" @click="check_pin"
+    >Check Pin</el-button
+  >
 </template>
 
 <style scoped>

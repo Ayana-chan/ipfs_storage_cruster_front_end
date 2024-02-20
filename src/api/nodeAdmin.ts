@@ -1,4 +1,4 @@
-import { HttpRequest } from '../utils/httpRequest';
+import { HttpRequest, type StandardResponse } from '../utils/httpRequest';
 
 const nodeAdminHttpRequest = new HttpRequest({
   baseURL: import.meta.env.VITE_API_NODE_ADMIN,
@@ -16,9 +16,18 @@ const nodeAdminHttpRequest = new HttpRequest({
 });
 
 export default class NodeAdminApi {
+  static check_pin(cid: string) {
+    type PinStatus = 'pinning' | 'pinned' | 'failed';
+    return nodeAdminHttpRequest.request<
+      StandardResponse<{ status: PinStatus }>
+    >({
+      url: '/api/pin/' + cid,
+      method: 'GET',
+    });
+  }
+
   static add_pin(data: { cid: string; filename?: string; async?: boolean }) {
     return nodeAdminHttpRequest.request<any>({
-      timeout: 100000,
       url: '/api/pin',
       method: 'POST',
       data,

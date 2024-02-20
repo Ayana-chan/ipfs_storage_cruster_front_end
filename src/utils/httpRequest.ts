@@ -7,6 +7,15 @@ import type {
 } from 'axios';
 
 /**
+ * Standard response type in IAxiosResponse.data
+ */
+export interface StandardResponse<T> {
+  code: String;
+  message: String;
+  data: T;
+}
+
+/**
  * Type returned by axios
  */
 export interface IAxiosResponse<T = any> {
