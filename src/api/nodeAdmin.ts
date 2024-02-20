@@ -16,11 +16,11 @@ const nodeAdminHttpRequest = new HttpRequest({
 });
 
 export default class NodeAdminApi {
-  static pin_add(data: { cid: string; filename?: string }) {
+  static add_pin(data: { cid: string; filename?: string; async?: boolean }) {
     return nodeAdminHttpRequest.request<any>({
       baseURL: 'http://127.0.0.1:4000',
       timeout: 100000,
-      url: '/api/pin/add',
+      url: '/api/pin',
       method: 'POST',
       data,
     });

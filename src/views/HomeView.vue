@@ -55,7 +55,7 @@ const add_pin = () => {
   // let cid = 'QmWeoysRLxatACwJQNmZLbBefTrFfdJoYcCQb3FoAZ2kt4';
   let cid = 'QmamM9uqiR2kqqeRF9UFJ1YXsDRxkebTBqci5Hg55Nr7jP';
 
-  NodeAdminApi.pin_add({ cid })
+  NodeAdminApi.add_pin({ cid })
     .then((res) => {
       console.log('Add pin success', res);
       ElMessage.success('Add pin success');
