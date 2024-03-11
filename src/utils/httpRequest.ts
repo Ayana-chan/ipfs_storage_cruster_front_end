@@ -10,8 +10,8 @@ import type {
  * Standard response type in IAxiosResponse.data
  */
 export interface StandardResponse<T> {
-  code: String;
-  message: String;
+  code: string;
+  message: string;
   data: T;
 }
 

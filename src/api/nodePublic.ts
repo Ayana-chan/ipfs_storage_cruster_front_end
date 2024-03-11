@@ -6,6 +6,7 @@ const nodePublicHttpRequest = new HttpRequest({
   interceptors: {
     requestInterceptors(config) {
       // console.log('add token to head');
+      // TODO: 修一修，这个String不知道是否有必要
       const token = 'Bearer ' + window.localStorage.getItem('token');
       if (token) {
         config.headers.Authorization = String(token);
