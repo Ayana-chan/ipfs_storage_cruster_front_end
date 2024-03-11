@@ -1,22 +1,8 @@
 <script setup lang="ts">
-import { useCounterStore } from '@/stores/counter';
 import { fakeDownload } from '@/utils';
 import type { AxiosError } from 'axios';
 import NodePublicApi from '@/api/nodePublic';
-import NodeAdminApi from '@/api/nodeAdmin';
 import axios from 'axios';
-
-const counterStore = useCounterStore();
-const { count } = storeToRefs(counterStore);
-const increment = counterStore.increment;
-
-const test_env = () => {
-  console.log(
-    'import.meta.env.VITE_API_DOMAIN',
-    import.meta.env.VITE_API_DOMAIN
-  );
-  console.debug('import.meta.env.BASE_URL', import.meta.env.BASE_URL);
-};
 
 const download_file = () => {
   // let cid = 'QmTYLjg9feXGKm5zpkZ9eqraEN9LnUmgipWSoeXguFdwWb';
@@ -35,7 +21,7 @@ const download_file = () => {
   // First, axios download file to memory;
   // Then, save file to local disk by fake link.
   console.log('Download request');
-  NodePublicApi.download(cid, { filename })
+  NodePublicApi.download('127.0.0.1:3000', cid, { filename })
     .then((res) => {
       console.log('Finish download to memory.', res);
       fakeDownload(filename, [res.data]);
@@ -49,38 +35,6 @@ const download_file = () => {
         'Warning'
       );
       // ElMessage.warning('Download failed, or caught by browser plugin');
-    });
-};
-
-const check_pin = () => {
-  // let cid = 'QmWeoysRLxatACwJQNmZLbBefTrFfdJoYcCQb3FoAZ2kt4';
-  // let cid = 'QmamM9uqiR2kqqeRF9UFJ1YXsDRxkebTBqci5Hg55Nr7jP';
-  let cid = 'QmZigK4HbeA8gLm3vNyA5pEqJeHhyWLX2BGzeS7tttodTX';
-
-  NodeAdminApi.check_pin(cid)
-    .then((res) => {
-      console.log('Check pin result', res.data.data.status);
-      ElMessage.success('Check pin result: ' + res.data.data.status);
-    })
-    .catch((err) => {
-      console.error('Check Pin fail', err);
-      ElMessage.error('Check Pin fail');
-    });
-};
-
-const add_pin = () => {
-  // let cid = 'QmWeoysRLxatACwJQNmZLbBefTrFfdJoYcCQb3FoAZ2kt4';
-  // let cid = 'QmamM9uqiR2kqqeRF9UFJ1YXsDRxkebTBqci5Hg55Nr7jP';
-  let cid = 'QmZigK4HbeA8gLm3vNyA5pEqJeHhyWLX2BGzeS7tttodTX';
-
-  NodeAdminApi.add_pin({ cid })
-    .then((res) => {
-      console.log('Add pin sent', res);
-      ElMessage.success('Add pin sent');
-    })
-    .catch((err) => {
-      console.error('Add Pin fail', err);
-      ElMessage.error('Add Pin fail');
     });
 };
 
@@ -110,15 +64,17 @@ type NodeStatus = 'Online' | 'Unhealthy' | 'Offline';
 interface IpfsNode {
   peerId: string;
   rpcAddress: string;
-  wrapperAddress: string;
+  wrapperPublicAddress: string;
+  wrapperAdminAddress: string;
   status: NodeStatus;
 }
 
 const ipfsNodeData = ref<IpfsNode[]>([
   {
     peerId: 'node1',
-    rpcAddress: 'http://localhost:5001',
-    wrapperAddress: 'http://localhost:8080',
+    rpcAddress: 'http://127.100.100.100:5001',
+    wrapperPublicAddress: 'http://127.100.100.100:3000',
+    wrapperAdminAddress: 'http://127.100.100.100:4000',
     status: 'Online',
   },
 ]);
@@ -143,35 +99,25 @@ const downloadFile = (row: IpfsNode): void => {
 </script>
 
 <template>
-  <div>{{ count }}</div>
-  <el-button type="primary" size="default" @click="increment"
-    >Increment</el-button
-  >
-  <br />
-  <el-button type="info" size="default" @click="test_env">Test env</el-button>
-  <div class="image-example"><WrappedImage></WrappedImage></div>
-  <el-button type="primary" size="large" @click="download_file"
-    >Download File</el-button
-  >
-  <el-button type="primary" size="large" @click="add_pin">Add Pin</el-button>
-  <el-button type="primary" size="large" @click="check_pin"
-    >Check Pin</el-button
-  >
-  <br />
   <div>
     <input type="file" @change="uploadFile" />
     <div v-if="response">{{ response }}</div>
   </div>
 
-  <br /><br />
+  <br />
 
   <el-table :data="ipfsNodeData" style="width: 100%" max-height="250">
-    <el-table-column fixed prop="peerId" label="Peer Id" width="150" />
-    <el-table-column prop="rpcAddress" label="RPC Address" width="120" />
+    <el-table-column fixed prop="peerId" label="Peer Id" width="200" />
+    <el-table-column prop="rpcAddress" label="RPC Address" width="250" />
     <el-table-column
-      prop="wrapperAddress"
-      label="Wrapper Address"
-      width="120"
+      prop="wrapperPublicAddress"
+      label="Wrapper Public Address"
+      width="250"
+    />
+    <el-table-column
+      prop="wrapperAdminAddress"
+      label="Wrapper Admin Address"
+      width="250"
     />
     <el-table-column label="Status">
       <template #default="scope">

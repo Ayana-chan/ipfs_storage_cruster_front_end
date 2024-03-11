@@ -1,7 +1,6 @@
 import { HttpRequest } from '../utils/httpRequest';
 
 const nodePublicHttpRequest = new HttpRequest({
-  baseURL: import.meta.env.VITE_API_WRAPPER_PUBLIC_ADDR,
   timeout: import.meta.env.VITE_API_TIME_OUT,
   interceptors: {
     requestInterceptors(config) {
@@ -16,8 +15,9 @@ const nodePublicHttpRequest = new HttpRequest({
 });
 
 export default class NodePublicApi {
-  static download(cid: string, param: { filename: string }) {
+  static download(targetNodeAddress: string, cid: string, param: { filename: string }) {
     return nodePublicHttpRequest.request<Blob>({
+      baseURL: targetNodeAddress,
       url: '/api/' + cid,
       method: 'GET',
       params: param,
