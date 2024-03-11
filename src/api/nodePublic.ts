@@ -1,15 +1,14 @@
 import { HttpRequest } from '../utils/httpRequest';
 
 const nodePublicHttpRequest = new HttpRequest({
-  baseURL: import.meta.env.VITE_API_NODE_PUBLIC,
+  baseURL: import.meta.env.VITE_API_WRAPPER_PUBLIC_ADDR,
   timeout: import.meta.env.VITE_API_TIME_OUT,
   interceptors: {
     requestInterceptors(config) {
       // console.log('add token to head');
-      // TODO: 修一修，这个String不知道是否有必要
-      const token = 'Bearer ' + window.localStorage.getItem('token');
+      const token = window.localStorage.getItem('token');
       if (token) {
-        config.headers.Authorization = String(token);
+        config.headers.Authorization = 'Bearer ' + token;
       }
       return config;
     },
