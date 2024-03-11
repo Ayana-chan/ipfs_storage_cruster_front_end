@@ -38,11 +38,12 @@ const download_file = () => {
     });
 };
 
-const response = ref(null);
+const response = ref<string | null>(null);
 
-const uploadFile = async (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
+const uploadFile = async (event: Event) => {
+  const files = (event?.target as HTMLInputElement)?.files;
+  if (!files) return;
+  const file = files[0];
 
   const formData = new FormData();
   formData.append('file', file);
@@ -59,15 +60,6 @@ const uploadFile = async (event) => {
     response.value = 'Upload failed';
   }
 };
-
-type NodeStatus = 'Online' | 'Unhealthy' | 'Offline';
-interface IpfsNode {
-  peerId: string;
-  rpcAddress: string;
-  wrapperPublicAddress: string;
-  wrapperAdminAddress: string;
-  status: NodeStatus;
-}
 
 const ipfsNodeData = ref<IpfsNode[]>([
   {
