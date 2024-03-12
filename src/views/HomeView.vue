@@ -6,7 +6,7 @@ import axios from 'axios';
 import IpfsApi from '@/api/ipfs';
 
 onMounted(() => {
-  refreshNodes();
+  refreshIpfsNodes();
 });
 
 const ipfsNodeList = ref<IpfsNode[]>([
@@ -32,15 +32,33 @@ const statusStyle = (status: IpfsNodeStatus): any => {
   }
 };
 
-const refreshNodes = () => {
-  IpfsApi.list_ipfs_nodes()
+const refreshIpfsNodes = () => {
+  IpfsApi.listIpfsNodes()
     .then((res) => {
-      console.log('Succeed refresh nodes', res);
+      console.log('Succeed refresh nodes');
       ipfsNodeList.value = res.data.data.list;
     })
     .catch((err: AxiosError) => {
-      console.warn('Failed refresh nodes', err);
+      console.error('Failed refresh nodes', err);
       ElMessage.error('Failed refresh nodes');
+    });
+};
+
+const addNewIpfsNodeForm = reactive({
+  rpcIp: '',
+  rpcPort: '',
+  wrapperPublicAddress: '',
+  wrapperAdminAddress: '',
+});
+
+const addNewIpfsNode = () => {
+  IpfsApi.addIpfsNode(addNewIpfsNodeForm)
+    .then((res) => {
+      console.log('Succeed add node');
+    })
+    .catch((err: AxiosError) => {
+      console.error('Failed add node', err);
+      ElMessage.error('Failed add node');
     });
 };
 
