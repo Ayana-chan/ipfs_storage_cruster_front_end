@@ -94,6 +94,7 @@ const downloadFile = (
   opt_filename?: string
 ) => {
   ElMessage.info('Download ' + cid + ' from ' + targetUrl);
+  console.log('Download ' + cid + ' from ' + targetUrl);
 
   let filename: string;
   if (opt_filename) {
