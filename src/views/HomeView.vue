@@ -4,6 +4,29 @@ import type { AxiosError } from 'axios';
 import NodePublicApi from '@/api/nodePublic';
 import axios from 'axios';
 
+const ipfsNodeData = ref<IpfsNode[]>([
+  {
+    peerId: 'node1',
+    rpcAddress: 'http://127.100.100.100:5001',
+    wrapperPublicAddress: 'http://127.100.100.100:3000',
+    wrapperAdminAddress: 'http://127.100.100.100:4000',
+    status: 'Online',
+  },
+]);
+
+const statusStyle = (status: IpfsNodeStatus): any => {
+  switch (status) {
+    case 'Online':
+      return { color: 'green' };
+    case 'Unhealthy':
+      return { color: 'red' };
+    case 'Offline':
+      return { color: 'grey' };
+    default:
+      return { color: 'yello' };
+  }
+};
+
 const downloadFile = (
   targetUrl: string,
   cid: string,
@@ -38,8 +61,7 @@ const downloadFile = (
     });
 };
 
-const response = ref<string | null>(null);
-
+const uploadResponse = ref<string | null>(null);
 const uploadFile = async (event: Event) => {
   const files = (event?.target as HTMLInputElement)?.files;
   if (!files) return;
@@ -54,33 +76,10 @@ const uploadFile = async (event: Event) => {
         'Content-Type': 'multipart/form-data',
       },
     });
-    response.value = JSON.stringify(res.data, null, 2);
+    uploadResponse.value = JSON.stringify(res.data, null, 2);
   } catch (error) {
     console.error('Upload failed:', error);
-    response.value = 'Upload failed';
-  }
-};
-
-const ipfsNodeData = ref<IpfsNode[]>([
-  {
-    peerId: 'node1',
-    rpcAddress: 'http://127.100.100.100:5001',
-    wrapperPublicAddress: 'http://127.100.100.100:3000',
-    wrapperAdminAddress: 'http://127.100.100.100:4000',
-    status: 'Online',
-  },
-]);
-
-const statusStyle = (status: IpfsNodeStatus): any => {
-  switch (status) {
-    case 'Online':
-      return { color: 'green' };
-    case 'Unhealthy':
-      return { color: 'red' };
-    case 'Offline':
-      return { color: 'grey' };
-    default:
-      return { color: 'yello' };
+    uploadResponse.value = 'Upload failed';
   }
 };
 
@@ -102,7 +101,7 @@ const nodeDownload = () => {
 <template>
   <div>
     <input type="file" @change="uploadFile" />
-    <div v-if="response">{{ response }}</div>
+    <div v-if="uploadResponse">{{ uploadResponse }}</div>
   </div>
 
   <br />
