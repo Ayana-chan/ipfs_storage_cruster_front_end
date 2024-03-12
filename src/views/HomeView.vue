@@ -37,7 +37,7 @@ const ipfsNodeList = ref<IpfsNode[]>([
     rpcAddress: 'http://127.100.100.100:5001',
     wrapperPublicAddress: 'http://127.100.100.100:3000',
     wrapperAdminAddress: 'http://127.100.100.100:4000',
-    status: 'Online',
+    nodeStatus: 'Online',
   },
 ]);
 
@@ -83,6 +83,9 @@ const addNewIpfsNode = () => {
       console.error('Failed add node', err);
       ElMessage.error('Failed add node');
     });
+
+  // refresh
+  refreshIpfsNodes();
 };
 
 const downloadFile = (
@@ -125,6 +128,10 @@ const nodeDownloadForm = reactive({
   cid: '',
 });
 const onNodeDownloadDialogOpen = (row: IpfsNode) => {
+  if (!row.wrapperPublicAddress) {
+    ElMessage.error("Can't download. Service not available.");
+    return;
+  }
   nodeDownloadDialogVisible.value = true;
   nodeDownloadForm.nodeAddress = row.wrapperPublicAddress;
 };
@@ -188,8 +195,8 @@ const nodeDownload = () => {
     />
     <el-table-column label="Status">
       <template #default="scope">
-        <span :style="statusStyle(scope.row.status)">{{
-          scope.row.status
+        <span :style="statusStyle(scope.row.nodeStatus)">{{
+          scope.row.nodeStatus
         }}</span>
       </template>
     </el-table-column>
