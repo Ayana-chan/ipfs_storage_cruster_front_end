@@ -9,14 +9,36 @@ onMounted(() => {
   refreshIpfsNodes();
 });
 
+const uploadResponse = ref<string | null>(null);
+const uploadFile = async (event: Event) => {
+  const files = (event?.target as HTMLInputElement)?.files;
+  if (!files) return;
+  const file = files[0];
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const res = await axios.post('http://localhost:5000/api/file', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    uploadResponse.value = JSON.stringify(res.data, null, 2);
+  } catch (error) {
+    console.error('Upload failed:', error);
+    uploadResponse.value = 'Upload failed';
+  }
+};
+
 const ipfsNodeList = ref<IpfsNode[]>([
-  // {
-  //   peerId: 'node1',
-  //   rpcAddress: 'http://127.100.100.100:5001',
-  //   wrapperPublicAddress: 'http://127.100.100.100:3000',
-  //   wrapperAdminAddress: 'http://127.100.100.100:4000',
-  //   status: 'Online',
-  // },
+  {
+    peerId: 'node1',
+    rpcAddress: 'http://127.100.100.100:5001',
+    wrapperPublicAddress: 'http://127.100.100.100:3000',
+    wrapperAdminAddress: 'http://127.100.100.100:4000',
+    status: 'Online',
+  },
 ]);
 
 const statusStyle = (status: IpfsNodeStatus): any => {
@@ -44,9 +66,9 @@ const refreshIpfsNodes = () => {
     });
 };
 
+const addNewIpfsNodeDialogVisible = ref(false);
 const addNewIpfsNodeForm = reactive({
-  rpcIp: '',
-  rpcPort: '',
+  rpcAddress: '',
   wrapperPublicAddress: '',
   wrapperAdminAddress: '',
 });
@@ -54,7 +76,8 @@ const addNewIpfsNodeForm = reactive({
 const addNewIpfsNode = () => {
   IpfsApi.addIpfsNode(addNewIpfsNodeForm)
     .then((res) => {
-      console.log('Succeed add node');
+      ElMessage.info('Succeed add node');
+      console.log('Succeed add node', addNewIpfsNodeForm);
     })
     .catch((err: AxiosError) => {
       console.error('Failed add node', err);
@@ -96,40 +119,18 @@ const downloadFile = (
     });
 };
 
-const uploadResponse = ref<string | null>(null);
-const uploadFile = async (event: Event) => {
-  const files = (event?.target as HTMLInputElement)?.files;
-  if (!files) return;
-  const file = files[0];
-
-  const formData = new FormData();
-  formData.append('file', file);
-
-  try {
-    const res = await axios.post('http://localhost:5000/api/file', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    uploadResponse.value = JSON.stringify(res.data, null, 2);
-  } catch (error) {
-    console.error('Upload failed:', error);
-    uploadResponse.value = 'Upload failed';
-  }
-};
-
-const nodeDownloadVisible = ref(false);
+const nodeDownloadDialogVisible = ref(false);
 const nodeDownloadForm = reactive({
   nodeAddress: '',
   cid: '',
 });
 const onNodeDownloadDialogOpen = (row: IpfsNode) => {
-  nodeDownloadVisible.value = true;
+  nodeDownloadDialogVisible.value = true;
   nodeDownloadForm.nodeAddress = row.wrapperPublicAddress;
 };
 const nodeDownload = () => {
   downloadFile(nodeDownloadForm.nodeAddress, nodeDownloadForm.cid);
-  nodeDownloadVisible.value = false;
+  nodeDownloadDialogVisible.value = false;
 };
 </script>
 
@@ -140,6 +141,37 @@ const nodeDownload = () => {
   </div>
 
   <br />
+
+  <el-button type="primary" @click="addNewIpfsNodeDialogVisible = true"
+    >Add IPFS node</el-button
+  >
+
+  <!-- Add IPFS node -->
+  <el-dialog
+    v-model="addNewIpfsNodeDialogVisible"
+    title="Download from Node"
+    width="500"
+  >
+    <el-form :model="addNewIpfsNodeForm">
+      <el-form-item label="RPC Address" :label-width="200">
+        <el-input v-model="addNewIpfsNodeForm.rpcAddress" />
+      </el-form-item>
+      <el-form-item label="Wrapper Public Address" :label-width="200">
+        <el-input v-model="addNewIpfsNodeForm.wrapperPublicAddress" />
+      </el-form-item>
+      <el-form-item label="Wrapper Admin Address" :label-width="200">
+        <el-input v-model="addNewIpfsNodeForm.wrapperAdminAddress" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <div>
+        <el-button @click="addNewIpfsNodeDialogVisible = false"
+          >Cancel</el-button
+        >
+        <el-button type="primary" @click="addNewIpfsNode"> Confirm </el-button>
+      </div>
+    </template>
+  </el-dialog>
 
   <el-table :data="ipfsNodeList" style="width: 100%" max-height="250">
     <el-table-column fixed prop="peerId" label="Peer Id" width="200" />
@@ -175,30 +207,22 @@ const nodeDownload = () => {
 
   <!-- Download from node -->
   <el-dialog
-    v-model="nodeDownloadVisible"
+    v-model="nodeDownloadDialogVisible"
     title="Download from Node"
     width="500"
   >
     <el-form :model="nodeDownloadForm">
-      <el-form-item label="cid" :label-width="140">
+      <el-form-item label="cid" :label-width="80">
         <el-input v-model="nodeDownloadForm.cid" />
       </el-form-item>
     </el-form>
     <template #footer>
-      <div class="dialog-footer">
-        <el-button @click="nodeDownloadVisible = false">Cancel</el-button>
+      <div>
+        <el-button @click="nodeDownloadDialogVisible = false">Cancel</el-button>
         <el-button type="primary" @click="nodeDownload"> Confirm </el-button>
       </div>
     </template>
   </el-dialog>
 </template>
 
-<style scoped>
-.image-example {
-  border: 0.2rem solid #a459c7;
-  width: 15rem;
-  height: 10rem;
-  display: flex;
-  flex-wrap: wrap;
-}
-</style>
+<style scoped></style>

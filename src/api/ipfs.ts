@@ -14,8 +14,7 @@ export default class IpfsApi {
   }
 
   static addIpfsNode(data: {
-    rpcIp: string;
-    rpcPort: string;
+    rpcAddress: string;
     wrapperPublicAddress: string;
     wrapperAdminAddress: string;
   }) {
