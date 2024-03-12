@@ -1,10 +1,9 @@
-
-type NodeStatus = 'Online' | 'Unhealthy' | 'Offline';
+type IpfsNodeStatus = 'Online' | 'Unhealthy' | 'Offline';
 
 interface IpfsNode {
   peerId: string;
   rpcAddress: string;
   wrapperPublicAddress: string;
   wrapperAdminAddress: string;
-  status: NodeStatus;
+  status: IpfsNodeStatus;
 }

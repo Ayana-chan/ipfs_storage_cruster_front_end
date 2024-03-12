@@ -4,24 +4,24 @@ import type { AxiosError } from 'axios';
 import NodePublicApi from '@/api/nodePublic';
 import axios from 'axios';
 
-const download_file = () => {
-  // let cid = 'QmTYLjg9feXGKm5zpkZ9eqraEN9LnUmgipWSoeXguFdwWb';
-  // let filename = 'pa4.txt';
-  // let cid = 'QmamM9uqiR2kqqeRF9UFJ1YXsDRxkebTBqci5Hg55Nr7jP';
-  // let filename = 'abc.txt';
-  // let cid = 'QmcvNpUouVvFFX8GL3xbZMqLZFZnz9yiZVDprnL4EiGXzg';
-  // let filename = 'lm1.jpeg';
-  let cid = 'QmZigK4HbeA8gLm3vNyA5pEqJeHhyWLX2BGzeS7tttodTX';
-  let filename = 'koishi.jpg';
-  // let cid = 'QmWeoysRLxatACwJQNmZLbBefTrFfdJoYcCQb3FoAZ2kt4';
-  // let filename = 'mfb.png';
-  // let cid = 'QmcT1st8Jb42q23VZhq9rDKvQp3SNnWCyZBU5xdGeCDQP9';
-  // let filename = 'cap.mp4';
+const downloadFile = (
+  targetUrl: string,
+  cid: string,
+  opt_filename?: string
+) => {
+  ElMessage.info('Download ' + cid + ' from ' + targetUrl);
+
+  let filename: string;
+  if (opt_filename) {
+    filename = opt_filename;
+  } else {
+    filename = 'untitled';
+  }
 
   // First, axios download file to memory;
   // Then, save file to local disk by fake link.
   console.log('Download request');
-  NodePublicApi.download('127.0.0.1:3000', cid, { filename })
+  NodePublicApi.download(targetUrl, cid, { filename })
     .then((res) => {
       console.log('Finish download to memory.', res);
       fakeDownload(filename, [res.data]);
@@ -71,7 +71,7 @@ const ipfsNodeData = ref<IpfsNode[]>([
   },
 ]);
 
-const statusStyle = (status: NodeStatus): any => {
+const statusStyle = (status: IpfsNodeStatus): any => {
   switch (status) {
     case 'Online':
       return { color: 'green' };
@@ -84,9 +84,18 @@ const statusStyle = (status: NodeStatus): any => {
   }
 };
 
-const downloadFile = (row: IpfsNode): void => {
-  console.log('下载文件：', row);
-  // 实现文件下载逻辑
+const nodeDownloadVisible = ref(false);
+const nodeDownloadForm = reactive({
+  nodeAddress: '',
+  cid: '',
+});
+const onNodeDownloadDialogOpen = (row: IpfsNode) => {
+  nodeDownloadVisible.value = true;
+  nodeDownloadForm.nodeAddress = row.wrapperPublicAddress;
+};
+const nodeDownload = () => {
+  downloadFile(nodeDownloadForm.nodeAddress, nodeDownloadForm.cid);
+  nodeDownloadVisible.value = false;
 };
 </script>
 
@@ -120,12 +129,34 @@ const downloadFile = (row: IpfsNode): void => {
     </el-table-column>
     <el-table-column label="Operations">
       <template #default="{ row }">
-        <el-button type="primary" size="small" @click="downloadFile(row)"
+        <el-button
+          type="primary"
+          size="small"
+          @click="onNodeDownloadDialogOpen(row)"
           >Download</el-button
         >
       </template>
     </el-table-column>
   </el-table>
+
+  <!-- Download from node -->
+  <el-dialog
+    v-model="nodeDownloadVisible"
+    title="Download from Node"
+    width="500"
+  >
+    <el-form :model="nodeDownloadForm">
+      <el-form-item label="cid" :label-width="140">
+        <el-input v-model="nodeDownloadForm.cid" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="nodeDownloadVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="nodeDownload"> Confirm </el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 
 <style scoped>
