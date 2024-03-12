@@ -1,7 +1,7 @@
 import { HttpRequest } from '../utils/httpRequest';
 
 const httpRequest = new HttpRequest({
-  baseURL: import.meta.env.VITE_API_WRAPPER_PUBLIC_ADDR,
+  baseURL: import.meta.env.VITE_API_MANAGER_ADDR,
   timeout: import.meta.env.VITE_API_TIME_OUT,
   interceptors: {
     requestInterceptors(config) {

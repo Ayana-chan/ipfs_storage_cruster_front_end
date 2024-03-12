@@ -3,15 +3,20 @@ import { fakeDownload } from '@/utils';
 import type { AxiosError } from 'axios';
 import NodePublicApi from '@/api/nodePublic';
 import axios from 'axios';
+import IpfsApi from '@/api/ipfs';
 
-const ipfsNodeData = ref<IpfsNode[]>([
-  {
-    peerId: 'node1',
-    rpcAddress: 'http://127.100.100.100:5001',
-    wrapperPublicAddress: 'http://127.100.100.100:3000',
-    wrapperAdminAddress: 'http://127.100.100.100:4000',
-    status: 'Online',
-  },
+onMounted(() => {
+  refreshNodes();
+});
+
+const ipfsNodeList = ref<IpfsNode[]>([
+  // {
+  //   peerId: 'node1',
+  //   rpcAddress: 'http://127.100.100.100:5001',
+  //   wrapperPublicAddress: 'http://127.100.100.100:3000',
+  //   wrapperAdminAddress: 'http://127.100.100.100:4000',
+  //   status: 'Online',
+  // },
 ]);
 
 const statusStyle = (status: IpfsNodeStatus): any => {
@@ -25,6 +30,18 @@ const statusStyle = (status: IpfsNodeStatus): any => {
     default:
       return { color: 'yello' };
   }
+};
+
+const refreshNodes = () => {
+  IpfsApi.list_ipfs_nodes()
+    .then((res) => {
+      console.log('Succeed refresh nodes', res);
+      ipfsNodeList.value = res.data.data.list;
+    })
+    .catch((err: AxiosError) => {
+      console.warn('Failed refresh nodes', err);
+      ElMessage.error('Failed refresh nodes');
+    });
 };
 
 const downloadFile = (
@@ -106,7 +123,7 @@ const nodeDownload = () => {
 
   <br />
 
-  <el-table :data="ipfsNodeData" style="width: 100%" max-height="250">
+  <el-table :data="ipfsNodeList" style="width: 100%" max-height="250">
     <el-table-column fixed prop="peerId" label="Peer Id" width="200" />
     <el-table-column prop="rpcAddress" label="RPC Address" width="250" />
     <el-table-column
