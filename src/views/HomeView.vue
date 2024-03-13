@@ -19,11 +19,15 @@ const uploadFile = async (event: Event) => {
   formData.append('file', file);
 
   try {
-    const res = await axios.post('http://localhost:5000/api/file', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const res = await axios.post(
+      import.meta.env.VITE_API_MANAGER_ADDR + '/api/file',
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
     uploadResponse.value = JSON.stringify(res.data, null, 2);
   } catch (error) {
     console.error('Upload failed:', error);
@@ -80,6 +84,7 @@ const addNewIpfsNode = () => {
     });
 };
 
+// QmZigK4HbeA8gLm3vNyA5pEqJeHhyWLX2BGzeS7tttodTX
 const downloadFile = (
   targetUrl: string,
   cid: string,
@@ -88,12 +93,14 @@ const downloadFile = (
   ElMessage.info('Download ' + cid + ' from ' + targetUrl);
   console.log('Download ' + cid + ' from ' + targetUrl);
 
+  // TODO 空串文件名会被视为什么，测试完后删除log
   let filename: string;
   if (opt_filename) {
     filename = opt_filename;
   } else {
     filename = cid;
   }
+  console.log('Download file name', filename, opt_filename);
 
   // First, axios download file to memory;
   // Then, save file to local disk by fake link.
@@ -130,6 +137,7 @@ const nodeDownloadDialogVisible = ref(false);
 const nodeDownloadForm = reactive({
   nodeAddress: '',
   cid: '',
+  filename: '',
 });
 const onNodeDownloadDialogOpen = (row: IpfsNode) => {
   if (!row.wrapperPublicAddress) {
@@ -140,7 +148,11 @@ const onNodeDownloadDialogOpen = (row: IpfsNode) => {
   nodeDownloadForm.nodeAddress = row.wrapperPublicAddress;
 };
 const onNodeDownloadClick = () => {
-  downloadFile(nodeDownloadForm.nodeAddress, nodeDownloadForm.cid);
+  downloadFile(
+    nodeDownloadForm.nodeAddress,
+    nodeDownloadForm.cid,
+    nodeDownloadForm.filename
+  );
   nodeDownloadDialogVisible.value = false;
 };
 </script>
@@ -162,6 +174,8 @@ const onNodeDownloadClick = () => {
     v-model="addNewIpfsNodeDialogVisible"
     title="Download from Node"
     width="500"
+    draggable
+    overflow
   >
     <el-form :model="addNewIpfsNodeForm">
       <el-form-item label="RPC Address" :label-width="200">
@@ -223,10 +237,15 @@ const onNodeDownloadClick = () => {
     v-model="nodeDownloadDialogVisible"
     title="Download from Node"
     width="500"
+    draggable
+    overflow
   >
     <el-form :model="nodeDownloadForm">
-      <el-form-item label="cid" :label-width="80">
+      <el-form-item label="CID" :label-width="80">
         <el-input v-model="nodeDownloadForm.cid" />
+      </el-form-item>
+      <el-form-item label="File Name" :label-width="80">
+        <el-input v-model="nodeDownloadForm.filename" />
       </el-form-item>
     </el-form>
     <template #footer>
