@@ -72,11 +72,15 @@ const addNewIpfsNodeForm = reactive({
   wrapperPublicAddress: '',
   wrapperAdminAddress: '',
 });
+const onAddNewIpfsNodeClick = () => {
+  addNewIpfsNode();
+  addNewIpfsNodeDialogVisible.value = false;
+};
 
 const addNewIpfsNode = () => {
   IpfsApi.addIpfsNode(addNewIpfsNodeForm)
     .then((res) => {
-      ElMessage.info('Succeed add node');
+      ElMessage.success('Succeed add node');
       console.log('Succeed add node', addNewIpfsNodeForm);
     })
     .catch((err: AxiosError) => {
@@ -100,7 +104,7 @@ const downloadFile = (
   if (opt_filename) {
     filename = opt_filename;
   } else {
-    filename = 'untitled';
+    filename = cid;
   }
 
   // First, axios download file to memory;
@@ -136,7 +140,7 @@ const onNodeDownloadDialogOpen = (row: IpfsNode) => {
   nodeDownloadDialogVisible.value = true;
   nodeDownloadForm.nodeAddress = row.wrapperPublicAddress;
 };
-const nodeDownload = () => {
+const onNodeDownloadClick = () => {
   downloadFile(nodeDownloadForm.nodeAddress, nodeDownloadForm.cid);
   nodeDownloadDialogVisible.value = false;
 };
@@ -176,7 +180,9 @@ const nodeDownload = () => {
         <el-button @click="addNewIpfsNodeDialogVisible = false"
           >Cancel</el-button
         >
-        <el-button type="primary" @click="addNewIpfsNode"> Confirm </el-button>
+        <el-button type="primary" @click="onAddNewIpfsNodeClick">
+          Confirm
+        </el-button>
       </div>
     </template>
   </el-dialog>
@@ -227,7 +233,9 @@ const nodeDownload = () => {
     <template #footer>
       <div>
         <el-button @click="nodeDownloadDialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="nodeDownload"> Confirm </el-button>
+        <el-button type="primary" @click="onNodeDownloadClick">
+          Confirm
+        </el-button>
       </div>
     </template>
   </el-dialog>
