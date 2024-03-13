@@ -66,17 +66,6 @@ const refreshIpfsNodes = () => {
     });
 };
 
-const addNewIpfsNodeDialogVisible = ref(false);
-const addNewIpfsNodeForm = reactive({
-  rpcAddress: '',
-  wrapperPublicAddress: '',
-  wrapperAdminAddress: '',
-});
-const onAddNewIpfsNodeClick = () => {
-  addNewIpfsNode();
-  addNewIpfsNodeDialogVisible.value = false;
-};
-
 const addNewIpfsNode = () => {
   IpfsApi.addIpfsNode(addNewIpfsNodeForm)
     .then((res) => {
@@ -125,6 +114,17 @@ const downloadFile = (
       );
       // ElMessage.warning('Download failed, or caught by browser plugin');
     });
+};
+
+const addNewIpfsNodeDialogVisible = ref(false);
+const addNewIpfsNodeForm = reactive({
+  rpcAddress: '',
+  wrapperPublicAddress: '',
+  wrapperAdminAddress: '',
+});
+const onAddNewIpfsNodeClick = () => {
+  addNewIpfsNode();
+  addNewIpfsNodeDialogVisible.value = false;
 };
 
 const nodeDownloadDialogVisible = ref(false);
