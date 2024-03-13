@@ -71,14 +71,13 @@ const addNewIpfsNode = () => {
     .then((res) => {
       ElMessage.success('Succeed add node');
       console.log('Succeed add node', addNewIpfsNodeForm);
+      // refresh
+      refreshIpfsNodes();
     })
     .catch((err: AxiosError) => {
       console.error('Failed add node', err);
       ElMessage.error('Failed add node');
     });
-
-  // refresh
-  refreshIpfsNodes();
 };
 
 const downloadFile = (
