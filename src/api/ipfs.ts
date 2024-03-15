@@ -24,4 +24,11 @@ export default class IpfsApi {
       data,
     });
   }
+
+  static reBootstrapAllIpfsNode() {
+    return httpRequest.request<StandardResponse<null>>({
+      url: '/api/admin/ipfs/re-bootstrap',
+      method: 'GET',
+    });
+  }
 }

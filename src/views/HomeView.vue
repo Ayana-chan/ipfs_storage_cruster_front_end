@@ -84,6 +84,20 @@ const addNewIpfsNode = () => {
     });
 };
 
+const reBootstrapAll = () => {
+  IpfsApi.reBootstrapAllIpfsNode()
+    .then((res) => {
+      ElMessage.success('Succeed re-bootstrap all node');
+      console.log('Succeed re-bootstrap all node');
+      // refresh
+      refreshIpfsNodes();
+    })
+    .catch((err: AxiosError) => {
+      console.error('Failed re-bootstrap all node', err);
+      ElMessage.error('Failed re-bootstrap all node');
+    });
+};
+
 // QmZigK4HbeA8gLm3vNyA5pEqJeHhyWLX2BGzeS7tttodTX
 const downloadFile = (
   targetUrl: string,
@@ -93,7 +107,7 @@ const downloadFile = (
   ElMessage.info('Download ' + cid + ' from ' + targetUrl);
   console.log('Download ' + cid + ' from ' + targetUrl);
 
-  // TODO 空串文件名会被视为什么，测试完后删除log
+  // TODO: 空串文件名会被视为什么，测试完后删除log
   let filename: string;
   if (opt_filename) {
     filename = opt_filename;
@@ -167,6 +181,9 @@ const onNodeDownloadClick = () => {
 
   <el-button type="primary" @click="addNewIpfsNodeDialogVisible = true"
     >Add IPFS node</el-button
+  >
+  <el-button type="primary" @click="reBootstrapAll"
+    >Re-bootstrap all IPFS node</el-button
   >
 
   <!-- Add IPFS node -->
