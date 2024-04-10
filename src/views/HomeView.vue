@@ -11,14 +11,14 @@ onMounted(() => {
 
 const initialIpfsNodes: AddNewIpfsNodeFormType[] = [
   {
-    rpcAddress: 'http://ipfs-0:5001',
-    wrapperPublicAddress: 'http://192.168.177.134:3000',
-    wrapperAdminAddress: 'http://wrapper-0:4000',
+    rpcAddress: 'slave-ipfs-0:5001',
+    wrapperPublicAddress: '192.168.177.134:3000',
+    wrapperAdminAddress: 'wrapper-0:4000',
   },
   {
-    rpcAddress: 'http://ipfs-1:5001',
-    wrapperPublicAddress: 'http://192.168.177.134:3000',
-    wrapperAdminAddress: 'http://wrapper-1:4000',
+    rpcAddress: 'slave-ipfs-1:5001',
+    wrapperPublicAddress: '192.168.177.134:3000',
+    wrapperAdminAddress: 'wrapper-1:4000',
   },
 ];
 
