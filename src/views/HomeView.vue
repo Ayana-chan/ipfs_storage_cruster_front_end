@@ -48,7 +48,7 @@ const uploadFile = async (event: Event) => {
   }
 };
 
-const ipfsNodeList = ref<IpfsNode[]>([
+const ipfsNodeList = ref<Node[]>([
   // {
   //   peerId: 'node1',
   //   rpcAddress: 'http://127.100.100.100:5001',
@@ -58,7 +58,7 @@ const ipfsNodeList = ref<IpfsNode[]>([
   // },
 ]);
 
-const statusStyle = (status: IpfsNodeStatus): any => {
+const statusStyle = (status: NodeStatus): any => {
   switch (status) {
     case 'Online':
       return { color: 'green' };
@@ -192,7 +192,7 @@ const nodeDownloadForm = reactive({
   cid: '',
   filename: '',
 });
-const onNodeDownloadDialogOpen = (row: IpfsNode) => {
+const onNodeDownloadDialogOpen = (row: Node) => {
   if (!row.wrapperPublicAddress) {
     ElMessage.error("Can't download. Service not available.");
     return;
