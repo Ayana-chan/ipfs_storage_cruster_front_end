@@ -9,6 +9,19 @@ onMounted(() => {
   refreshIpfsNodes();
 });
 
+const initialIpfsNodes: AddNewIpfsNodeFormType[] = [
+  {
+    rpcAddress: 'http://ipfs-0:5001',
+    wrapperPublicAddress: 'http://192.168.177.134:3000',
+    wrapperAdminAddress: 'http://wrapper-0:4000',
+  },
+  {
+    rpcAddress: 'http://ipfs-1:5001',
+    wrapperPublicAddress: 'http://192.168.177.134:3000',
+    wrapperAdminAddress: 'http://wrapper-1:4000',
+  },
+];
+
 const uploadResponse = ref<string | null>(null);
 const uploadFile = async (event: Event) => {
   const files = (event?.target as HTMLInputElement)?.files;
@@ -36,13 +49,13 @@ const uploadFile = async (event: Event) => {
 };
 
 const ipfsNodeList = ref<IpfsNode[]>([
-  {
-    peerId: 'node1',
-    rpcAddress: 'http://127.100.100.100:5001',
-    wrapperPublicAddress: 'http://127.100.100.100:3000',
-    wrapperAdminAddress: 'http://127.100.100.100:4000',
-    nodeStatus: 'Online',
-  },
+  // {
+  //   peerId: 'node1',
+  //   rpcAddress: 'http://127.100.100.100:5001',
+  //   wrapperPublicAddress: 'http://127.100.100.100:3000',
+  //   wrapperAdminAddress: 'http://127.100.100.100:4000',
+  //   nodeStatus: 'Online',
+  // },
 ]);
 
 const statusStyle = (status: IpfsNodeStatus): any => {
@@ -71,7 +84,11 @@ const refreshIpfsNodes = () => {
 };
 
 const addNewIpfsNode = () => {
-  IpfsApi.addIpfsNode(addNewIpfsNodeForm)
+  addNewIpfsNodeCore(addNewIpfsNodeForm);
+};
+
+const addNewIpfsNodeCore = (form: AddNewIpfsNodeFormType) => {
+  IpfsApi.addIpfsNode(form)
     .then((res) => {
       ElMessage.success('Succeed add node');
       console.log('Succeed add node', addNewIpfsNodeForm);
@@ -84,7 +101,25 @@ const addNewIpfsNode = () => {
     });
 };
 
+const addAllInitialIpfsNodes = () => {
+  console.log('Begin add all initial IPFS nodes', initialIpfsNodes);
+  Promise.all(
+    initialIpfsNodes.map(
+      (form) =>
+        new Promise<void>((resolve) => {
+          addNewIpfsNodeCore(form);
+          resolve();
+        })
+    )
+  ).then(() => {
+    console.log('Finish add all initial IPFS nodes');
+    refreshIpfsNodes();
+  });
+};
+
 const reBootstrapAll = () => {
+  ElMessage.info('Re-bootstrap all node ...');
+  console.log('Re-bootstrap all node ...');
   IpfsApi.reBootstrapAllIpfsNode()
     .then((res) => {
       ElMessage.success('Succeed re-bootstrap all node');
@@ -107,14 +142,13 @@ const downloadFile = (
   ElMessage.info('Download ' + cid + ' from ' + targetUrl);
   console.log('Download ' + cid + ' from ' + targetUrl);
 
-  // TODO: 空串文件名会被视为什么，测试完后删除log
   let filename: string;
   if (opt_filename) {
     filename = opt_filename;
   } else {
     filename = cid;
   }
-  console.log('Download file name', filename, opt_filename);
+  // console.log('Download file name', filename, opt_filename);
 
   // First, axios download file to memory;
   // Then, save file to local disk by fake link.
@@ -136,8 +170,13 @@ const downloadFile = (
     });
 };
 
+interface AddNewIpfsNodeFormType {
+  rpcAddress: string;
+  wrapperPublicAddress: string;
+  wrapperAdminAddress: string;
+}
 const addNewIpfsNodeDialogVisible = ref(false);
-const addNewIpfsNodeForm = reactive({
+const addNewIpfsNodeForm = reactive<AddNewIpfsNodeFormType>({
   rpcAddress: '',
   wrapperPublicAddress: '',
   wrapperAdminAddress: '',
@@ -184,6 +223,9 @@ const onNodeDownloadClick = () => {
   >
   <el-button type="primary" @click="reBootstrapAll"
     >Re-bootstrap all IPFS node</el-button
+  >
+  <el-button type="primary" @click="addAllInitialIpfsNodes"
+    >Quick add all initial IPFS node</el-button
   >
 
   <!-- Add IPFS node -->
