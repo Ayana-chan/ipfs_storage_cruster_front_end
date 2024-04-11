@@ -5,7 +5,7 @@ export default class IpfsApi {
   static listIpfsNodes() {
     return httpRequest.request<
       StandardResponse<{
-        list: Node[];
+        list: IpfsNode[];
       }>
     >({
       url: '/api/admin/ipfs',

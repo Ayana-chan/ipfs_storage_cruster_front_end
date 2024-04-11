@@ -36,7 +36,7 @@ export default class PinApi {
     return httpRequest.request<
       StandardResponse<{
         pinId: string;
-        nodes: Node[];
+        nodes: IpfsNode[];
       }>
     >({
       url: '/api/admin/pin/ls_nodes_of_pin',

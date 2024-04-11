@@ -1,7 +1,7 @@
 type NodeStatus = 'Online' | 'Unhealthy' | 'Offline';
 type PinStatus = 'Pinned' | 'Pinning' | 'Queued' | 'Failed' | 'NotFound';
 
-interface Node {
+interface IpfsNode {
   id: string;
   peerId: string;
   rpcAddress: string;

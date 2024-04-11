@@ -4,6 +4,7 @@ import type { AxiosError } from 'axios';
 import NodePublicApi from '@/api/nodePublic';
 import axios from 'axios';
 import IpfsApi from '@/api/ipfs';
+import PinApi from '@/api/pin';
 
 onMounted(() => {
   refreshIpfsNodes();
@@ -48,7 +49,7 @@ const uploadFile = async (event: Event) => {
   }
 };
 
-const ipfsNodeList = ref<Node[]>([
+const ipfsNodeList = ref<IpfsNode[]>([
   // {
   //   peerId: 'node1',
   //   rpcAddress: 'http://127.100.100.100:5001',
@@ -102,6 +103,9 @@ const addNewIpfsNodeCore = (form: AddNewIpfsNodeFormType) => {
 };
 
 const addAllInitialIpfsNodes = () => {
+  ElMessage.info(
+    'Begin add all initial IPFS nodes. Nodes num: ' + initialIpfsNodes.length
+  );
   console.log('Begin add all initial IPFS nodes', initialIpfsNodes);
   Promise.all(
     initialIpfsNodes.map(
@@ -112,6 +116,7 @@ const addAllInitialIpfsNodes = () => {
         })
     )
   ).then(() => {
+    ElMessage.success('Finish add all initial IPFS nodes');
     console.log('Finish add all initial IPFS nodes');
     refreshIpfsNodes();
   });
@@ -192,7 +197,7 @@ const nodeDownloadForm = reactive({
   cid: '',
   filename: '',
 });
-const onNodeDownloadDialogOpen = (row: Node) => {
+const onNodeDownloadDialogOpen = (row: IpfsNode) => {
   if (!row.wrapperPublicAddress) {
     ElMessage.error("Can't download. Service not available.");
     return;
@@ -208,6 +213,34 @@ const onNodeDownloadClick = () => {
   );
   nodeDownloadDialogVisible.value = false;
 };
+
+const pinCidToFindNodes = ref('');
+const findNodesStorePinLegallyResult = ref<string[]>([]);
+const findNodesStorePinLegally = () => {
+  console.log('Find nodes store pin legally');
+  PinApi.listNodesWithPin(pinCidToFindNodes.value)
+    .then((res) => {
+      ElMessage.success('Succeed find nodes store pin legally');
+      console.log('Succeed find nodes store pin legally');
+      findNodesStorePinLegallyResult.value = res.data.data.nodes.map((v) => {
+        return v.id;
+      });
+      // refresh
+      refreshIpfsNodes();
+    })
+    .catch((err: AxiosError) => {
+      console.error('Failed find nodes store pin legally', err);
+      ElMessage.error('Failed find nodes store pin legally');
+    });
+};
+// Judge highlight
+const nodeTableRowClassName = computed(() => {
+  return (row: IpfsNode) => {
+    return findNodesStorePinLegallyResult.value.includes(row.id)
+      ? 'highlight-row'
+      : '';
+  };
+});
 </script>
 
 <template>
@@ -216,7 +249,7 @@ const onNodeDownloadClick = () => {
     <div v-if="uploadResponse">{{ uploadResponse }}</div>
   </div>
 
-  <br />
+  <br /><br />
 
   <el-button type="primary" @click="addNewIpfsNodeDialogVisible = true"
     >Add IPFS node</el-button
@@ -227,6 +260,19 @@ const onNodeDownloadClick = () => {
   <el-button type="primary" @click="addAllInitialIpfsNodes"
     >Quick add all initial IPFS node</el-button
   >
+
+  <br /><br />
+
+  <el-input
+    v-model="pinCidToFindNodes"
+    style="width: 240px"
+    placeholder="Input a CID"
+  />
+  <el-button type="primary" @click="findNodesStorePinLegally"
+    >Hight nodes with pin</el-button
+  >
+
+  <br /><br />
 
   <!-- Add IPFS node -->
   <el-dialog
@@ -259,7 +305,13 @@ const onNodeDownloadClick = () => {
     </template>
   </el-dialog>
 
-  <el-table :data="ipfsNodeList" style="width: 100%" max-height="250">
+  <!-- TODO: 高亮findNodesStorePinLegallyResult -->
+  <el-table
+    :data="ipfsNodeList"
+    :row-class-name="nodeTableRowClassName"
+    style="width: 100%"
+    max-height="250"
+  >
     <el-table-column fixed prop="peerId" label="Peer Id" width="200" />
     <el-table-column prop="rpcAddress" label="RPC Address" width="250" />
     <el-table-column
@@ -316,6 +368,12 @@ const onNodeDownloadClick = () => {
       </div>
     </template>
   </el-dialog>
+
+  <FindPinTable />
 </template>
 
-<style scoped></style>
+<style scoped>
+.highlight-row {
+  background-color: #f0f9eb; /* 选择一个明显的颜色 */
+}
+</style>
