@@ -49,15 +49,10 @@ const uploadFile = async (event: Event) => {
   }
 };
 
-const ipfsNodeList = ref<IpfsNode[]>([
-  // {
-  //   peerId: 'node1',
-  //   rpcAddress: 'http://127.100.100.100:5001',
-  //   wrapperPublicAddress: 'http://127.100.100.100:3000',
-  //   wrapperAdminAddress: 'http://127.100.100.100:4000',
-  //   nodeStatus: 'Online',
-  // },
-]);
+interface IpfsNodeInTable extends IpfsNode {
+  storedCids?: string[];
+}
+const ipfsNodeList = ref<IpfsNodeInTable[]>([]);
 
 const statusStyle = (status: NodeStatus): any => {
   switch (status) {
@@ -75,8 +70,14 @@ const statusStyle = (status: NodeStatus): any => {
 const refreshIpfsNodes = () => {
   IpfsApi.listIpfsNodes()
     .then((res) => {
-      console.log('Succeed refresh nodes');
       ipfsNodeList.value = res.data.data.list;
+      Promise.all(
+        ipfsNodeList.value.map((node) =>
+          PinApi.listPinsInOneNodeActually(node.id)
+        )
+      ).then(() => {
+        console.log('Succeed refresh nodes');
+      });
     })
     .catch((err: AxiosError) => {
       console.error('Failed refresh nodes', err);
@@ -329,6 +330,18 @@ const nodeTableRowClassName = computed(() => {
         <span :style="statusStyle(scope.row.nodeStatus)">{{
           scope.row.nodeStatus
         }}</span>
+      </template>
+    </el-table-column>
+    <el-table-column prop="storedCids" label="Stored CIDs" width="180">
+      <template #default="{ row }">
+        <el-tooltip class="item" effect="dark" placement="top">
+          <template #content>
+            <span v-for="(cid, index) in row.storedCids" :key="index"
+              >{{ cid }}<br
+            /></span>
+          </template>
+          <span>{{ 'Stored CID length:' + row.storedCids.length() }}</span>
+        </el-tooltip>
       </template>
     </el-table-column>
     <el-table-column label="Operations">
