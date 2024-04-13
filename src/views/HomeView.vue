@@ -70,14 +70,20 @@ const statusStyle = (status: NodeStatus): any => {
 const refreshIpfsNodes = () => {
   IpfsApi.listIpfsNodes()
     .then((res) => {
+      console.log('Success refresh nodes', res.data);
       ipfsNodeList.value = res.data.data.list;
       Promise.all(
-        ipfsNodeList.value.map((node) =>
-          PinApi.listPinsInOneNodeActually(node.id)
-        )
-      ).then(() => {
-        console.log('Succeed refresh nodes');
-      });
+        ipfsNodeList.value.map((node) => {
+          console.log('target node id', node.id);
+          return PinApi.listPinsInOneNodeActually(node.id);
+        })
+      )
+        .then((res) => {
+          console.log('Succeed refresh pins', res);
+        })
+        .catch((err) => {
+          console.error('Failed refresh pins', err);
+        });
     })
     .catch((err: AxiosError) => {
       console.error('Failed refresh nodes', err);
@@ -252,6 +258,12 @@ const nodeTableRowClassName = computed(() => {
 
   <br /><br />
 
+  <el-button type="info" @click="refreshIpfsNodes"
+    >Refresh Node Table</el-button
+  >
+
+  <br /><br />
+
   <el-button type="primary" @click="addNewIpfsNodeDialogVisible = true"
     >Add IPFS node</el-button
   >
@@ -381,8 +393,6 @@ const nodeTableRowClassName = computed(() => {
       </div>
     </template>
   </el-dialog>
-
-  <FindPinTable />
 </template>
 
 <style scoped>
