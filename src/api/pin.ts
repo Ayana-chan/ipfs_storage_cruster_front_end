@@ -5,8 +5,8 @@ export default class PinApi {
   static listPinsInOneNodeActually(nodeId: string) {
     return httpRequest.request<
       StandardResponse<{
-        node_id: string;
-        pins_cid: string[];
+        nodeId: string;
+        pinsCid: string[];
       }>
     >({
       url: '/api/admin/pin/ls_pins_of_node_actually',
@@ -20,7 +20,7 @@ export default class PinApi {
   static listPinsInOneNode(nodeId: string) {
     return httpRequest.request<
       StandardResponse<{
-        node_id: string;
+        nodeId: string;
         pins: Pin[];
       }>
     >({

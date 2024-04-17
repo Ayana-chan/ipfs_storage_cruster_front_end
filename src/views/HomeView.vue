@@ -72,16 +72,21 @@ const refreshIpfsNodes = () => {
     .then((res) => {
       console.log('Success refresh nodes', res.data);
       ipfsNodeList.value = res.data.data.list;
+      ipfsNodeList.value.map((node) => {
+        Object.assign(node, { storedCids: [] });
+      });
+
       Promise.all(
         ipfsNodeList.value.map((node) => {
           console.log('target node id', node.id);
-          return PinApi.listPinsInOneNodeActually(node.id);
+          return getPinsOfNode(node);
         })
       )
         .then((res) => {
-          console.log('Succeed refresh pins', res);
+          console.log('Succeed refresh pins');
         })
         .catch((err) => {
+          // never
           console.error('Failed refresh pins', err);
         });
     })
@@ -89,6 +94,16 @@ const refreshIpfsNodes = () => {
       console.error('Failed refresh nodes', err);
       ElMessage.error('Failed refresh nodes');
     });
+};
+
+const getPinsOfNode = async (node: IpfsNodeInTable) => {
+  try {
+    let pinsRes = await PinApi.listPinsInOneNodeActually(node.id);
+    let pins = pinsRes.data.data.pinsCid;
+    node.storedCids = pins;
+  } catch (err) {
+    console.error('Failed get pins of node', node, err);
+  }
 };
 
 const addNewIpfsNode = () => {
@@ -352,7 +367,7 @@ const nodeTableRowClassName = computed(() => {
               >{{ cid }}<br
             /></span>
           </template>
-          <span>{{ 'Stored CID length:' + row.storedCids.length() }}</span>
+          <span>{{ 'Stored CID length:' + row.storedCids.length }}</span>
         </el-tooltip>
       </template>
     </el-table-column>
