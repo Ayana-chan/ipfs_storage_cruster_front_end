@@ -5,6 +5,9 @@ import NodePublicApi from '@/api/nodePublic';
 import axios from 'axios';
 import IpfsApi from '@/api/ipfs';
 import PinApi from '@/api/pin';
+import FileApi from '@/api/file';
+
+// TODO: 看能不能查询pin在哪些节点
 
 onMounted(() => {
   refreshIpfsNodes();
@@ -18,8 +21,13 @@ const initialIpfsNodes: AddNewIpfsNodeFormType[] = [
   },
   {
     rpcAddress: 'slave-ipfs-1:5001',
-    wrapperPublicAddress: '192.168.177.134:3000',
+    wrapperPublicAddress: '192.168.177.134:3001',
     wrapperAdminAddress: 'wrapper-1:4000',
+  },
+  {
+    rpcAddress: 'slave-ipfs-2:5001',
+    wrapperPublicAddress: '192.168.177.134:3002',
+    wrapperAdminAddress: 'wrapper-2:4000',
   },
 ];
 
@@ -37,6 +45,7 @@ const uploadFile = async (event: Event) => {
       import.meta.env.VITE_API_MANAGER_ADDR + '/api/file',
       formData,
       {
+        // TODO: 'application/octet-stream'
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -47,6 +56,64 @@ const uploadFile = async (event: Event) => {
     console.error('Upload failed:', error);
     uploadResponse.value = 'Upload failed';
   }
+};
+
+const downloadFile = () => {
+  FileApi.downloadFileAdvice(downloadFileForm.value.cid)
+    .then((res) => {
+      let url = res.data.data.url;
+      console.log('Succeed get download advice', url);
+      downloadFileFromUrl(
+        downloadFileForm.value.cid,
+        url,
+        downloadFileForm.value.filename
+      );
+    })
+    .catch((err: AxiosError) => {
+      console.error('Failed get download advice', err);
+      ElMessage.error('Failed add node');
+    });
+};
+
+const downloadFileForm = ref({
+  cid: '',
+  filename: '',
+});
+
+const downloadFileFromUrl = (
+  cid: string,
+  url: string,
+  opt_filename?: string
+) => {
+  ElMessage.info('Download ' + cid + ' from ' + url);
+  console.log('Download ' + cid + ' from ' + url);
+
+  let filename: string;
+  if (opt_filename) {
+    filename = opt_filename;
+  } else {
+    filename = cid;
+  }
+  // console.log('Download file name', filename, opt_filename);
+
+  // First, axios download file to memory;
+  // Then, save file to local disk by fake link.
+  console.log('Download request');
+  NodePublicApi.downloadWithUrl(url, { filename })
+    .then((res) => {
+      console.log('Finish download to memory.', res);
+      fakeDownload(filename, [res.data]);
+      console.log('Download success');
+      ElMessage.success('Download success');
+    })
+    .catch((err: AxiosError) => {
+      console.warn('Download failed, or caught by browser plugin', err);
+      ElMessageBox.alert(
+        'Download failed, or caught by browser plugin',
+        'Warning'
+      );
+      // ElMessage.warning('Download failed, or caught by browser plugin');
+    });
 };
 
 interface IpfsNodeInTable extends IpfsNode {
@@ -161,7 +228,7 @@ const reBootstrapAll = () => {
 };
 
 // QmZigK4HbeA8gLm3vNyA5pEqJeHhyWLX2BGzeS7tttodTX
-const downloadFile = (
+const downloadFileFromNode = (
   targetUrl: string,
   cid: string,
   opt_filename?: string
@@ -180,7 +247,7 @@ const downloadFile = (
   // First, axios download file to memory;
   // Then, save file to local disk by fake link.
   console.log('Download request');
-  NodePublicApi.download(targetUrl, cid, { filename })
+  NodePublicApi.downloadWithCid(targetUrl, cid, { filename })
     .then((res) => {
       console.log('Finish download to memory.', res);
       fakeDownload(filename, [res.data]);
@@ -228,7 +295,7 @@ const onNodeDownloadDialogOpen = (row: IpfsNode) => {
   nodeDownloadForm.nodeAddress = row.wrapperPublicAddress;
 };
 const onNodeDownloadClick = () => {
-  downloadFile(
+  downloadFileFromNode(
     nodeDownloadForm.nodeAddress,
     nodeDownloadForm.cid,
     nodeDownloadForm.filename
@@ -243,7 +310,7 @@ const findNodesStorePinLegally = () => {
   PinApi.listNodesWithPin(pinCidToFindNodes.value)
     .then((res) => {
       ElMessage.success('Succeed find nodes store pin legally');
-      console.log('Succeed find nodes store pin legally');
+      console.log('Succeed find nodes store pin legally', res);
       findNodesStorePinLegallyResult.value = res.data.data.nodes.map((v) => {
         return v.id;
       });
@@ -269,6 +336,20 @@ const nodeTableRowClassName = computed(() => {
   <div>
     <input type="file" @change="uploadFile" />
     <div v-if="uploadResponse">{{ uploadResponse }}</div>
+  </div>
+
+  <br /><br />
+
+  <div id="download-file-part">
+    <el-form :model="downloadFileForm">
+      <el-form-item label="CID" :label-width="80">
+        <el-input v-model="downloadFileForm.cid" />
+      </el-form-item>
+      <el-form-item label="File Name" :label-width="80">
+        <el-input v-model="downloadFileForm.filename" />
+      </el-form-item>
+    </el-form>
+    <el-button type="primary" @click="downloadFile"> Download File </el-button>
   </div>
 
   <br /><br />
@@ -338,7 +419,7 @@ const nodeTableRowClassName = computed(() => {
     :data="ipfsNodeList"
     :row-class-name="nodeTableRowClassName"
     style="width: 100%"
-    max-height="250"
+    max-height="800"
   >
     <el-table-column fixed prop="peerId" label="Peer Id" width="200" />
     <el-table-column prop="rpcAddress" label="RPC Address" width="250" />
@@ -413,5 +494,13 @@ const nodeTableRowClassName = computed(() => {
 <style scoped>
 .highlight-row {
   background-color: #f0f9eb; /* 选择一个明显的颜色 */
+}
+
+#download-file-part {
+  background-color: #e2e2d4;
+  width: 600px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
 }
 </style>

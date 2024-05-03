@@ -15,7 +15,7 @@ const nodePublicHttpRequest = new HttpRequest({
 });
 
 export default class NodePublicApi {
-  static download(
+  static downloadWithCid(
     targetAddress: string,
     cid: string,
     param: { filename: string }
@@ -28,4 +28,13 @@ export default class NodePublicApi {
       responseType: 'blob',
     });
   }
+
+  static downloadWithUrl(url: string, param: { filename: string }) {
+    return nodePublicHttpRequest.request<Blob>({
+      baseURL: 'http://' + url,
+      method: 'GET',
+      params: param,
+      responseType: 'blob',
+    });
+  };
 }
