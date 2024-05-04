@@ -137,7 +137,7 @@ const statusStyle = (status: NodeStatus): any => {
 const refreshIpfsNodes = () => {
   IpfsApi.listIpfsNodes()
     .then((res) => {
-      console.log('Success refresh nodes', res.data);
+      // console.log('Success refresh nodes', res.data);
       ipfsNodeList.value = res.data.data.list;
       ipfsNodeList.value.map((node) => {
         Object.assign(node, { storedCids: [] });
@@ -150,7 +150,7 @@ const refreshIpfsNodes = () => {
         })
       )
         .then((res) => {
-          console.log('Succeed refresh pins');
+          // console.log('Succeed refresh pins');
         })
         .catch((err) => {
           // never
@@ -334,11 +334,12 @@ const nodeTableRowClassName = computed(() => {
 
 <template>
   <div>
-    <input type="file" @change="uploadFile" />
-    <div v-if="uploadResponse">{{ uploadResponse }}</div>
+    <input type="file" id="file" @change="uploadFile" class="file-input" />
+    <label for="file" class="file-label">Upload File</label>
+    <div>{{ uploadResponse }}</div>
   </div>
 
-  <br /><br />
+  <br />
 
   <div id="download-file-part">
     <el-form :model="downloadFileForm">
@@ -502,5 +503,27 @@ const nodeTableRowClassName = computed(() => {
   padding: 20px;
   border: 1px solid #ccc;
   border-radius: 8px;
+}
+
+/* 隐藏原始的文件输入 */
+.file-input {
+  display: none;
+}
+
+/* 自定义标签样式 */
+.file-label {
+  margin-top: 10px;
+  display: inline-block;
+  padding: 10px 20px;
+  color: white;
+  background-color: #007bff;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+/* 鼠标悬停时的背景颜色变化 */
+.file-label:hover {
+  background-color: #0056b3;
 }
 </style>
