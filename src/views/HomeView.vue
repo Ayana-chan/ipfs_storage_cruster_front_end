@@ -31,6 +31,14 @@ const initialIpfsNodes: AddNewIpfsNodeFormType[] = [
   },
 ];
 
+interface UploadFileResponse {
+  requestId: string;
+  fileMetadata: {
+    name: string;
+    hash: string;
+    size: string;
+  };
+}
 const uploadResponse = ref<string | null>(null);
 const uploadFile = async (event: Event) => {
   const files = (event?.target as HTMLInputElement)?.files;
@@ -45,13 +53,15 @@ const uploadFile = async (event: Event) => {
       import.meta.env.VITE_API_MANAGER_ADDR + '/api/file',
       formData,
       {
-        // TODO: 'application/octet-stream'
+        // TODO: 'multipart/form-data'
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/octet-stream',
         },
       }
     );
-    uploadResponse.value = JSON.stringify(res.data, null, 2);
+    console.log('Success upload file', res.data);
+    let result: UploadFileResponse = res.data.data;
+    uploadResponse.value = JSON.stringify(result.fileMetadata);
   } catch (error) {
     console.error('Upload failed:', error);
     uploadResponse.value = 'Upload failed';
@@ -333,10 +343,10 @@ const nodeTableRowClassName = computed(() => {
 </script>
 
 <template>
-  <div>
+  <div id="upload-file-part">
     <input type="file" id="file" @change="uploadFile" class="file-input" />
     <label for="file" class="file-label">Upload File</label>
-    <div>{{ uploadResponse }}</div>
+    <div id="display-uploaded-file">{{ uploadResponse }}</div>
   </div>
 
   <br />
@@ -353,13 +363,11 @@ const nodeTableRowClassName = computed(() => {
     <el-button type="primary" @click="downloadFile"> Download File </el-button>
   </div>
 
-  <br /><br />
+  <br />
 
   <el-button type="info" @click="refreshIpfsNodes"
     >Refresh Node Table</el-button
   >
-
-  <br /><br />
 
   <el-button type="primary" @click="addNewIpfsNodeDialogVisible = true"
     >Add IPFS node</el-button
@@ -423,16 +431,16 @@ const nodeTableRowClassName = computed(() => {
     max-height="800"
   >
     <el-table-column fixed prop="peerId" label="Peer Id" width="200" />
-    <el-table-column prop="rpcAddress" label="RPC Address" width="250" />
+    <el-table-column prop="rpcAddress" label="RPC Address" width="220" />
     <el-table-column
       prop="wrapperPublicAddress"
       label="Wrapper Public Address"
-      width="250"
+      width="220"
     />
     <el-table-column
       prop="wrapperAdminAddress"
       label="Wrapper Admin Address"
-      width="250"
+      width="220"
     />
     <el-table-column label="Status">
       <template #default="scope">
@@ -497,12 +505,18 @@ const nodeTableRowClassName = computed(() => {
   background-color: #f0f9eb; /* 选择一个明显的颜色 */
 }
 
-#download-file-part {
-  background-color: #e2e2d4;
-  width: 600px;
-  padding: 20px;
+#upload-file-part {
+  /* height: 80px; */
+  background-color: #e4e4db;
+  padding: 10px;
   border: 1px solid #ccc;
   border-radius: 8px;
+  display: flex;
+}
+
+#display-uploaded-file {
+  width: 1000px;
+  margin-left: 20px;
 }
 
 /* 隐藏原始的文件输入 */
@@ -512,7 +526,6 @@ const nodeTableRowClassName = computed(() => {
 
 /* 自定义标签样式 */
 .file-label {
-  margin-top: 10px;
   display: inline-block;
   padding: 10px 20px;
   color: white;
@@ -525,5 +538,13 @@ const nodeTableRowClassName = computed(() => {
 /* 鼠标悬停时的背景颜色变化 */
 .file-label:hover {
   background-color: #0056b3;
+}
+
+#download-file-part {
+  background-color: #e2e2d4;
+  width: 600px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
 }
 </style>
