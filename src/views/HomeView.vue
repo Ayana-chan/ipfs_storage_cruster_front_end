@@ -379,7 +379,7 @@ const nodeTableRowClassName = computed(() => {
     >Quick add all initial IPFS node</el-button
   >
 
-  <br /><br />
+  <!-- <br /><br />
 
   <el-input
     v-model="pinCidToFindNodes"
@@ -388,9 +388,9 @@ const nodeTableRowClassName = computed(() => {
   />
   <el-button type="primary" @click="findNodesStorePinLegally"
     >Hight nodes with pin</el-button
-  >
+  > -->
 
-  <br /><br />
+  <br />
 
   <!-- Add IPFS node -->
   <el-dialog
@@ -515,6 +515,7 @@ const nodeTableRowClassName = computed(() => {
 }
 
 #display-uploaded-file {
+  background-color: #ecf5e8;
   width: 1000px;
   margin-left: 20px;
 }
@@ -541,7 +542,7 @@ const nodeTableRowClassName = computed(() => {
 }
 
 #download-file-part {
-  background-color: #e2e2d4;
+  background-color: #f3f3e4;
   width: 600px;
   padding: 10px;
   border: 1px solid #ccc;
